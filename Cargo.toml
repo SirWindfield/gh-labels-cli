@@ -1,0 +1,9 @@
+[package]
+authors = ["SirWindfield <SirWindfield@users.noreply.github.com>"]
+description = "A CLI for managing GitHub labels in existing repositories"
+edition = "2018"
+license = "Apache-2.0 OR the MIT"
+name = "gh-labels-cli"
+version = "0.0.0"
+
+[dependencies]
