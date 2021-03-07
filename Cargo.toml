@@ -7,3 +7,7 @@ name = "gh-labels-cli"
 version = "0.0.0"
 
 [dependencies]
+serde = "1.0.124"
+serde_json = "1.0.64"
+terminal-emoji = "0.2.5"
+terminal-spinners = "0.1.0"
