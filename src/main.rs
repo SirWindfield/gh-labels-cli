@@ -1,40 +1,60 @@
 use crate::{
     cli::{Cli, SubCommand},
     error::Error,
-    file::read_file,
-    util::{github_api_token, github_repo_from_cli_arg},
+    file::{read_file, Label},
+    util::{create_github_api_client, get_github_repo_and_owner, LabelAlreadyExistsError},
 };
 use clap::Clap;
 use eyre::{Result, WrapErr};
-use hubcaps::{Credentials, Github};
+use hubcaps::Error as GithubError;
+use terminal_emoji::Emoji;
 
 mod cli;
 mod error;
 mod file;
 mod util;
 
-const USER_AGENT: &str = "gh-labels-cli";
+const ERROR_EMOJI: Emoji = Emoji::new("✖", "×");
+const INFO_EMOJI: Emoji = Emoji::new("ℹ", "i");
+const SUCCESS_EMOJI: Emoji = Emoji::new("✔", "√");
+const WARNING_EMOJI: Emoji = Emoji::new("⚠", "‼");
 
 #[tokio::main]
 async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let cli: Cli = Cli::parse();
+
+    let github = create_github_api_client(cli.token.as_deref())?;
+    let repo = get_github_repo_and_owner(&cli.repo)?;
+    let repo = github.repo(repo.0, repo.1);
+
     match cli.cmd {
-        SubCommand::Import(args) => {
-            let token = github_api_token(cli.token.as_deref());
-            if token.is_none() {
-                return Err(Error::NoTokenSpecified).wrap_err_with(|| "Make sure to either set the API token via the environment variables `GH_LABELS_TOKEN` or `GITHUB_TOKEN` or pass the token to the CLI via the `-t,--token` flag.");
+        SubCommand::Create(args) => {
+            let label = Label::from(args.color, args.description, args.name);
+            let label_name = label.name.clone();
+
+            let res = repo.labels().create(&label.into()).await;
+            match res {
+                Err(e) => match e {
+                    GithubError::Fault { error, .. } => {
+                        if error.label_already_exists() {
+                            return Err(Error::LabelAlreadyExists(label_name)).wrap_err_with(
+                                || "GitHub doesn't support multiple labels with the same name",
+                            );
+                        }
+                    }
+                    _ => {
+                        eprintln!("handle other errors!")
+                    }
+                },
+                _ => {
+                    println!("{} Created label {:?}", SUCCESS_EMOJI, label_name);
+                }
             }
-
-            let github = Github::new(USER_AGENT, Credentials::Token(token.unwrap().to_string()))
-                .wrap_err_with(|| "Failed to create GitHub API client")?;
+        }
+        SubCommand::Update(args) => {
             let labels = read_file(&args.file)?;
-
-            // Fetch the list of labels.
-            let repo = github_repo_from_cli_arg(&args.repo)
-                .wrap_err_with(|| "The repository field has to be provided as `owner/repo`!")?;
-            let repo = github.repo(repo.0, repo.1);
             let repo_labels = repo.labels();
 
             // Create each label that has been read from the label definition file.
