@@ -419,6 +419,7 @@ dependencies = [
  "terminal-spinners",
  "thiserror",
  "tokio",
+ "url",
 ]
 
 [[package]]

@@ -10,6 +10,16 @@ pub struct Label {
     pub name: String,
 }
 
+impl Label {
+    pub fn from(color: String, description: Option<String>, name: String) -> Self {
+        Self {
+            color,
+            description,
+            name,
+        }
+    }
+}
+
 impl From<Label> for LabelOptions {
     fn from(lbl: Label) -> Self {
         LabelOptions::new(lbl.name, lbl.color, lbl.description.unwrap_or_default())
