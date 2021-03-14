@@ -79,3 +79,19 @@ A label definitions file is a file that you write containing all the labels you 
 > **Note:** The description field is optional.
 
 My own label definition file can be found [here](https://gist.github.com/SirWindfield/1fd1bb7f21c8d9170e69f52aa38c3201).
+
+#### License
+
+<sup>
+Licensed under either of <a href="license-apache">Apache License, Version
+2.0</a> or <a href="license-mit">MIT license</a> at your option.
+</sup>
+
+<br>
+
+<sub>
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
+</sub>
+
