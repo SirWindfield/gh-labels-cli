@@ -2,6 +2,16 @@
 
 > A tool for managing your GitHub labels.
 
+## Use-cases
+
+I personally use the CLI for creating a standard set of labels when initializing a new repository on GitHub. I've created custom alias for `gh` that uses `gh-labels-cli` to create a repository and run the CLI for bulk label creation:
+
+```console
+$ gh alias set -s new 'gh repo create $1; cd $1; gh labels update --purge'
+- Adding alias for new: gh repo create $1; cd $1; gh labels update --purge
+✓ Changed alias new from !gh repo create $1; cd $1; gh labels update to !gh repo create $1; cd $1; gh labels update --purge
+```
+
 ## Usage
 
 The CLI can be used as either standalone by directly invoking it via the `gh-labels` binary or you can register aliases for the official GitHub CLI (`gh`) to integrate `gh-labels-cli` into it.
@@ -15,16 +25,6 @@ The CLI needs a personal access token with appropiate `public_repo` or `repo` sc
 The CLI operates on repositories. Those can either be directly supplied via an argument in the form `owner/repo` or by running the CLI inside of an existing git repository with an upstream named `origin` pointing to `github.com`.
 
 For more information, take a closer look at the help.
-
-## Use-cases
-
-I personally use the CLI for creating a standard set of labels when initializing a new repository on GitHub. I've created another custom alias for `gh` that creates a repository and runs this CLI to create the labels:
-
-```console
-$ gh alias set -s new 'gh repo create $1; cd $1; gh labels update --purge'
-- Adding alias for new: gh repo create $1; cd $1; gh labels update --purge
-✓ Changed alias new from !gh repo create $1; cd $1; gh labels update to !gh repo create $1; cd $1; gh labels update --purge
-```
 
 I know use the `gh new <repo-name>` alias to create a new repository instead of `gh repo create`.
 
@@ -67,3 +67,5 @@ A label definitions file is a file that you write containing all the labels you 
 ```
 
 > **Note:** The description field is optional.
+
+My own label definition file can be found [here](https://gist.github.com/SirWindfield/1fd1bb7f21c8d9170e69f52aa38c3201).
