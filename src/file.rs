@@ -39,6 +39,12 @@ pub type JsonLabels = Vec<JsonLabel>;
 
 pub fn read_file(path: impl AsRef<Path>) -> Result<JsonLabels> {
     let file = File::open(path.as_ref()).wrap_err_with(|| "Cannot find label definition file")?;
-    serde_json::from_reader(file)
+    serde_json::from_reader::<_, JsonFile>(file)
         .wrap_err_with(|| "Misformatted label definition file. Make sure the file is valid json!")
+        .map(|v| v.labels)
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct JsonFile {
+    pub labels: JsonLabels,
 }
