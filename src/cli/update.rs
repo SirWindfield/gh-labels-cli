@@ -13,6 +13,10 @@ pub struct UpdateArgs {
     /// The label definitions file to use for updating.
     #[clap(long, short)]
     pub file: PathBuf,
+
+    /// Delete all labels inside the repository.
+    #[clap(long)]
+    pub purge: bool,
 }
 
 impl UpdateArgs {
@@ -26,9 +30,27 @@ impl UpdateArgs {
         let (existing_labels, _errored_labels): (Vec<_>, Vec<_>) =
             existing_labels.into_iter().partition(|r| r.is_ok());
 
-        let existing_labels: Vec<_> = existing_labels.into_iter().map(|r| r.unwrap()).collect();
+        let mut existing_labels: Vec<_> = existing_labels.into_iter().map(|r| r.unwrap()).collect();
         // let _errored_labels: Vec<_> = errored_labels.into_iter().map(|r|
         // r.unwrap_err()).collect();
+
+        // Purge old labels.
+        if self.purge {
+            println!(
+                "{} Purging all {} labels...",
+                INFO_SYMBOL,
+                existing_labels.len(),
+            );
+
+            let repo_labels = repo.labels();
+            for label in existing_labels.iter() {
+                repo_labels.delete(&label.name).await?;
+            }
+
+            // Set the existing labels to an empty vector. If not done than the code below
+            // won't create the labels again.
+            existing_labels.clear();
+        }
 
         let (same_by_name_labels, labels_to_create): (Vec<_>, Vec<_>) = labels
             .into_iter()
