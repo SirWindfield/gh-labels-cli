@@ -12,6 +12,16 @@ $ gh alias set -s new 'gh repo create $1; cd $1; gh labels update --purge'
 ✓ Changed alias new from !gh repo create $1; cd $1; gh labels update to !gh repo create $1; cd $1; gh labels update --purge
 ```
 
+## Installation
+
+As for now, `gh-labels-cli` can only be installed through `cargo`:
+
+```console
+$ cargo install gh-labels-cli --locked
+```
+
+A homebrew tab and AUR packages are in the works :)
+
 ## Usage
 
 The CLI can be used as either standalone by directly invoking it via the `gh-labels` binary or you can register aliases for the official GitHub CLI (`gh`) to integrate `gh-labels-cli` into it.
