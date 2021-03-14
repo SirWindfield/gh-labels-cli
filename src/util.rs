@@ -44,7 +44,6 @@ fn github_repo_from_cli_arg(arg: &str) -> std::result::Result<GitHubRepo<'_>, Er
 }
 
 pub fn get_github_repo_and_owner(repo_arg: &str) -> Result<GitHubRepo<'_>> {
-    github_repo_from_cli_arg(repo_arg).wrap_err_with(|| {
-        "The repository field has to be provided as `owner/repo` or as a Git URL!"
-    })
+    github_repo_from_cli_arg(repo_arg)
+        .wrap_err_with(|| "The repository field has to be provided as `owner/repo`!")
 }
