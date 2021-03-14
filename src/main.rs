@@ -1,5 +1,6 @@
 use crate::{
     cli::{Cli, SubCommand},
+    extension::{LabelAlreadyExistsExt, RepoNotFoundExt},
     error::Error,
     file::{read_file, Label},
     util::{create_github_api_client, get_github_repo_and_owner, LabelAlreadyExistsError},
@@ -11,13 +12,12 @@ use terminal_emoji::Emoji;
 
 mod cli;
 mod error;
+mod extension;
 mod file;
 mod util;
 
 const ERROR_EMOJI: Emoji = Emoji::new("✖", "×");
-const INFO_EMOJI: Emoji = Emoji::new("ℹ", "i");
 const SUCCESS_EMOJI: Emoji = Emoji::new("✔", "√");
-const WARNING_EMOJI: Emoji = Emoji::new("⚠", "‼");
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -35,18 +35,20 @@ async fn main() -> Result<()> {
             let label_name = label.name.clone();
 
             let res = repo.labels().create(&label.into()).await;
+            println!("{:?}", &res);
             match res {
-                Err(e) => match e {
-                    GithubError::Fault { error, .. } => {
-                        if error.label_already_exists() {
-                            return Err(Error::LabelAlreadyExists(label_name)).wrap_err_with(
-                                || "GitHub doesn't support multiple labels with the same name",
-                            );
-                        }
+                Err(e) => {
+                    if e.is_label_already_exists_error() {
+                        return Err(Error::LabelAlreadyExists(label_name)).wrap_err_with(
+                            || "GitHub doesn't support multiple labels with the same name",
+                        );
+                    } else if e.is_repo_not_found_error() {
+                        return Err(Error::RepoNotFound(cli.repo)).wrap_err_with(
+                            || "Make sure that the repository does exist before using the CLI",
+                        );
                     }
-                    _ => {
-                        eprintln!("handle other errors!")
-                    }
+
+                    return Err(Error::ApiError(e)).wrap_err_with(|| "Something went wrong during label creation. Please try again.");
                 },
                 _ => {
                     println!("{} Created label {:?}", SUCCESS_EMOJI, label_name);
