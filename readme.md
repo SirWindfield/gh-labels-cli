@@ -12,6 +12,8 @@ $ gh alias set -s new 'gh repo create $1; cd $1; gh labels update --purge'
 ✓ Changed alias new from !gh repo create $1; cd $1; gh labels update to !gh repo create $1; cd $1; gh labels update --purge
 ```
 
+> **Note:** for this to work you need a [label definition file](#label-definitions-file) inside the configuration directory. See [here](#update) for more information.
+
 ## Installation
 
 As for now, `gh-labels-cli` can only be installed through `cargo`:
