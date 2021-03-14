@@ -2,11 +2,13 @@ use clap::{AppSettings, Clap};
 
 mod api;
 mod config;
+mod integration;
 
 #[derive(Clap, Clone, Debug)]
 pub enum SubCommand {
     Api(api::ApiArgs),
     Config(config::ConfigArgs),
+    Integration(integration::IntegrationArgs),
 }
 
 #[derive(Clap, Clone, Debug)]

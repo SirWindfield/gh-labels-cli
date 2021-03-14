@@ -18,6 +18,7 @@ async fn main() -> Result<()> {
     match cli.cmd.clone() {
         SubCommand::Api(args) => args.run(cli).await?,
         SubCommand::Config(args) => args.run(cli)?,
+        SubCommand::Integration(args) => args.run(cli)?,
     }
 
     Ok(())
