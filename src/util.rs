@@ -4,7 +4,7 @@ use hubcaps::{Credentials, Github};
 use std::{borrow::Cow, env};
 use url::Url;
 
-const USER_AGENT: &str = "gh-labels-cli";
+const USER_AGENT: &str = "gh-labels-cli (https://github.com/SirWindfield/gh-labels-cli)";
 
 fn github_api_token(cli_token: Option<&str>) -> Option<Cow<'_, str>> {
     cli_token.map(Into::into).or_else(|| {
