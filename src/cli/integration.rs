@@ -24,7 +24,7 @@ impl IntegrationArgs {
             IntegrationSubCommand::Install => {
                 // gh alias set labels -s 'gh-labels api $@'
                 let exit_code = Command::new("gh")
-                    .args(&["alias", "set", "labels", "-s", "'gh-labels api $@'"])
+                    .args(&["alias", "set", "labels", "-s", "gh-labels api $@"])
                     .status()
                     .wrap_err_with(|| {
                         format!(
