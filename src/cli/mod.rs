@@ -1,10 +1,12 @@
 use clap::{AppSettings, Clap};
 
+mod config;
 mod create;
 mod update;
 
 #[derive(Clap, Clone, Debug)]
 pub enum SubCommand {
+    Config(config::ConfigArgs),
     Create(create::CreateArgs),
     Update(update::UpdateArgs),
 }

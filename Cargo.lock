@@ -264,6 +264,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "edit"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cdd6936f8bd9782e28932eef853bfcd8548992ce5748bb3e7e88bad613d0ee0"
+dependencies = [
+ "tempfile",
+ "which",
+]
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -439,6 +449,7 @@ dependencies = [
  "clap",
  "color-eyre",
  "directories-next",
+ "edit",
  "eyre",
  "hubcaps",
  "serde",
@@ -1853,6 +1864,16 @@ checksum = "ec600b26223b2948cedfde2a0aa6756dcf1fef616f43d7b3097aaf53a6c4d92b"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "which"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87c14ef7e1b8b8ecfc75d5eca37949410046e66f15d185c01d70824f1f8111ef"
+dependencies = [
+ "libc",
+ "thiserror",
 ]
 
 [[package]]
