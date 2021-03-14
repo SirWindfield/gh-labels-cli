@@ -3,13 +3,13 @@ use clap::{AppSettings, Clap};
 mod create;
 mod update;
 
-#[derive(Clap, Debug)]
+#[derive(Clap, Clone, Debug)]
 pub enum SubCommand {
     Create(create::CreateArgs),
     Update(update::UpdateArgs),
 }
 
-#[derive(Clap, Debug)]
+#[derive(Clap, Clone, Debug)]
 #[clap(author, setting(AppSettings::ColoredHelp), version)]
 pub struct Cli {
     #[clap(subcommand)]

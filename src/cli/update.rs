@@ -1,11 +1,67 @@
+use crate::{cli::Cli, file::read_file, Result};
 use clap::{AppSettings, Clap};
+use eyre::WrapErr;
+use hubcaps::repositories::Repository;
 use std::path::PathBuf;
+use terminal_log_symbols::colored::INFO_SYMBOL;
+use tokio::stream::StreamExt;
 
 /// Updates all labels from a label definition file.
-#[derive(Clap, Debug)]
+#[derive(Clap, Clone, Debug)]
 #[clap(author, setting(AppSettings::ColoredHelp), version)]
 pub struct UpdateArgs {
     /// The label definitions file to use for updating.
     #[clap(long, short)]
     pub file: PathBuf,
+}
+
+impl UpdateArgs {
+    pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
+        let labels = read_file(&self.file)?;
+
+        // Fetch all labels that currently exist and filter them. Filtering is done by
+        // comparing the repo labels to the one read from the file. The name,
+        // description and color are taken into account.
+        let existing_labels = repo.labels().iter().collect::<Vec<_>>().await;
+        let (existing_labels, _errored_labels): (Vec<_>, Vec<_>) =
+            existing_labels.into_iter().partition(|r| r.is_ok());
+
+        let existing_labels: Vec<_> = existing_labels.into_iter().map(|r| r.unwrap()).collect();
+        // let _errored_labels: Vec<_> = errored_labels.into_iter().map(|r|
+        // r.unwrap_err()).collect();
+
+        let (same_by_name_labels, labels_to_create): (Vec<_>, Vec<_>) = labels
+            .into_iter()
+            .partition(|lbl| existing_labels.iter().any(|v| lbl.name == v.name));
+        let (_, labels_to_update): (Vec<_>, Vec<_>) = same_by_name_labels
+            .into_iter()
+            .partition(|lbl| existing_labels.iter().any(|v| lbl == v));
+
+        println!(
+            "{} Repository has {} labels, creating {} and updating {}...",
+            INFO_SYMBOL,
+            existing_labels.len(),
+            labels_to_create.len(),
+            labels_to_update.len(),
+        );
+
+        // Only create labels that are different from the ones that are already present.
+        for label in labels_to_create {
+            let label_name = label.name.clone();
+            repo.labels()
+                .create(&label.into())
+                .await
+                .wrap_err_with(|| format!("Failed to create label: {:?}", &label_name))?;
+        }
+
+        for label in labels_to_update {
+            let label_name = label.name.clone();
+            repo.labels()
+                .update(&label_name, &label.into())
+                .await
+                .wrap_err_with(|| format!("Failed to create label: {:?}", &label_name))?;
+        }
+
+        Ok(())
+    }
 }

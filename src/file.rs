@@ -4,14 +4,15 @@ use serde::{Deserialize, Serialize};
 use std::{fs::File, path::Path};
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Label {
+pub struct JsonLabel {
     pub color: String,
-    pub description: Option<String>,
+    #[serde(default)]
+    pub description: String,
     pub name: String,
 }
 
-impl Label {
-    pub fn from(color: String, description: Option<String>, name: String) -> Self {
+impl JsonLabel {
+    pub fn from(color: String, description: String, name: String) -> Self {
         Self {
             color,
             description,
@@ -20,15 +21,23 @@ impl Label {
     }
 }
 
-impl From<Label> for LabelOptions {
-    fn from(lbl: Label) -> Self {
-        LabelOptions::new(lbl.name, lbl.color, lbl.description.unwrap_or_default())
+impl From<JsonLabel> for LabelOptions {
+    fn from(lbl: JsonLabel) -> Self {
+        LabelOptions::new(lbl.name, lbl.color, lbl.description)
     }
 }
 
-pub type Labels = Vec<Label>;
+impl PartialEq<hubcaps::labels::Label> for JsonLabel {
+    fn eq(&self, other: &hubcaps::labels::Label) -> bool {
+        other.color == self.color
+            && other.description.as_deref() == Some(&self.description)
+            && other.name == self.name
+    }
+}
 
-pub fn read_file(path: impl AsRef<Path>) -> Result<Labels> {
+pub type JsonLabels = Vec<JsonLabel>;
+
+pub fn read_file(path: impl AsRef<Path>) -> Result<JsonLabels> {
     let file = File::open(path.as_ref()).wrap_err_with(|| "Cannot find label definition file")?;
     serde_json::from_reader(file)
         .wrap_err_with(|| "Misformatted label definition file. Make sure the file is valid json!")

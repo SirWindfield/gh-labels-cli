@@ -1,7 +1,17 @@
+use crate::{
+    cli::Cli,
+    error::Error,
+    extension::{LabelAlreadyExistsExt, RepoNotFoundExt},
+    file::JsonLabel,
+    Result,
+};
 use clap::{AppSettings, Clap};
+use eyre::WrapErr;
+use hubcaps::repositories::Repository;
+use terminal_log_symbols::colored::SUCCESS_SYMBOL;
 
 /// Create a new label.
-#[derive(Clap, Debug)]
+#[derive(Clap, Clone, Debug)]
 #[clap(author, setting(AppSettings::ColoredHelp), version)]
 pub struct CreateArgs {
     /// The color of the label in hex notation (without the hash).
@@ -15,4 +25,39 @@ pub struct CreateArgs {
     /// The name of the label.
     #[clap(long, short)]
     pub name: String,
+}
+
+impl CreateArgs {
+    pub async fn run(self, cli: Cli, repo: Repository) -> Result<()> {
+        let label = JsonLabel::from(
+            self.color,
+            self.description.unwrap_or_else(|| "".into()),
+            self.name,
+        );
+        let label_name = label.name.clone();
+
+        let res = repo.labels().create(&label.into()).await;
+        match res {
+            Err(e) => {
+                if e.is_label_already_exists_error() {
+                    return Err(Error::LabelAlreadyExists(label_name)).wrap_err_with(|| {
+                        "GitHub doesn't support multiple labels with the same name"
+                    });
+                } else if e.is_repo_not_found_error() {
+                    return Err(Error::RepoNotFound(cli.repo.clone())).wrap_err_with(|| {
+                        "Make sure that the repository does exist before using the CLI"
+                    });
+                }
+
+                return Err(Error::ApiError(e)).wrap_err_with(|| {
+                    "Something went wrong during label creation. Please try again."
+                });
+            }
+            _ => {
+                println!("{} Created label {:?}", SUCCESS_SYMBOL, label_name);
+            }
+        }
+
+        Ok(())
+    }
 }

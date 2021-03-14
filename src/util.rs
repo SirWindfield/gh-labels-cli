@@ -1,24 +1,9 @@
 use crate::error::Error;
 use eyre::{Context, Result};
-use hubcaps::{errors::ClientError, Credentials, Github};
+use hubcaps::{Credentials, Github};
 use std::{borrow::Cow, env};
 
 const USER_AGENT: &str = "gh-labels-cli";
-
-pub trait LabelAlreadyExistsError {
-    fn label_already_exists(&self) -> bool;
-}
-
-impl LabelAlreadyExistsError for ClientError {
-    fn label_already_exists(&self) -> bool {
-        match &self.errors {
-            Some(v) => v
-                .iter()
-                .any(|v| v.field.as_deref() == Some("name") && v.code == "already_exists"),
-            None => false,
-        }
-    }
-}
 
 fn github_api_token(cli_token: Option<&str>) -> Option<Cow<'_, str>> {
     cli_token.map(Into::into).or_else(|| {
