@@ -1,4 +1,4 @@
-use eyre::{Context, Result};
+use eyre::{eyre, Context, Result};
 use hubcaps::labels::LabelOptions;
 use serde::{Deserialize, Serialize};
 use std::{fs::File, path::Path};
@@ -37,11 +37,16 @@ impl PartialEq<hubcaps::labels::Label> for JsonLabel {
 
 pub type JsonLabels = Vec<JsonLabel>;
 
-pub fn read_file(path: impl AsRef<Path>) -> Result<JsonLabels> {
+fn read_from_file(path: impl AsRef<Path>) -> Result<JsonFile> {
     let file = File::open(path.as_ref()).wrap_err_with(|| "Cannot find label definition file")?;
     serde_json::from_reader::<_, JsonFile>(file)
         .wrap_err_with(|| "Misformatted label definition file. Make sure the file is valid json!")
-        .map(|v| v.labels)
+}
+
+pub fn read_from_config_dir_or_fallback_to_cli_arg(
+    cli_path: Option<impl AsRef<Path>>,
+) -> Result<JsonFile> {
+    crate::config::config_file().map(read_from_file).unwrap_or_else(|| cli_path.map(|p| read_from_file(p.as_ref())).unwrap_or_else(|| Err(eyre!("Either create a global configuration file or pass a label definition file to the CLI"))))
 }
 
 #[derive(Debug, Deserialize, Serialize)]
