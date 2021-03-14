@@ -1,4 +1,4 @@
-use crate::{cli::Cli, file::read_from_config_dir_or_fallback_to_cli_arg, Result};
+use crate::{cli::Cli, file::read_from_cli_arg_or_fallback_to_config_dir, Result};
 use clap::{AppSettings, Clap};
 use eyre::WrapErr;
 use hubcaps::repositories::Repository;
@@ -21,7 +21,7 @@ pub struct UpdateArgs {
 
 impl UpdateArgs {
     pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
-        let label_definition_file = read_from_config_dir_or_fallback_to_cli_arg(self.file)?;
+        let label_definition_file = read_from_cli_arg_or_fallback_to_config_dir(self.file)?;
         let labels = label_definition_file.labels;
 
         // Fetch all labels that currently exist and filter them. Filtering is done by

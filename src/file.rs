@@ -43,10 +43,10 @@ fn read_from_file(path: impl AsRef<Path>) -> Result<JsonFile> {
         .wrap_err_with(|| "Misformatted label definition file. Make sure the file is valid json!")
 }
 
-pub fn read_from_config_dir_or_fallback_to_cli_arg(
+pub fn read_from_cli_arg_or_fallback_to_config_dir(
     cli_path: Option<impl AsRef<Path>>,
 ) -> Result<JsonFile> {
-    crate::config::config_file().map(read_from_file).unwrap_or_else(|| cli_path.map(|p| read_from_file(p.as_ref())).unwrap_or_else(|| Err(eyre!("Either create a global configuration file or pass a label definition file to the CLI"))))
+    cli_path.map(|p| read_from_file(p.as_ref())).unwrap_or_else(|| crate::config::config_file().map(read_from_file).unwrap_or_else(|| Err(eyre!("Either create a global configuration file or pass a label definition file to the CLI"))))
 }
 
 #[derive(Debug, Deserialize, Serialize)]

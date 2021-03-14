@@ -2,7 +2,6 @@ use crate::{cli::Cli, config::config_file, Result};
 use clap::{AppSettings, Clap};
 use edit::edit;
 use eyre::{eyre, Context};
-use hubcaps::repositories::Repository;
 use std::fs;
 
 /// Query or edit the global configuration.
@@ -23,7 +22,7 @@ pub struct ConfigArgs {
 }
 
 impl ConfigArgs {
-    pub fn run(self, _cli: Cli, _repo: Repository) -> Result<()> {
+    pub fn run(self, _cli: Cli) -> Result<()> {
         match config_file() {
             Some(path) => {
                 if self.edit {
