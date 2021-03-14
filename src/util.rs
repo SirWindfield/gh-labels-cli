@@ -33,7 +33,6 @@ pub type GitHubRepo<'a> = (Cow<'a, str>, Cow<'a, str>);
 /// `Err(Error::InvalidRepoFormat)` otherwise.
 fn github_repo_from_cli_arg(arg: &str) -> std::result::Result<GitHubRepo<'_>, Error> {
     let number_of_slashes = arg.matches('/').count();
-    println!("{:?}", arg);
 
     match number_of_slashes {
         1 => {
