@@ -4,6 +4,9 @@ use crate::{
     Result,
 };
 use clap::{AppSettings, Clap};
+use eyre::{eyre, WrapErr};
+use git2::Repository;
+use std::env::current_dir;
 
 mod create;
 mod update;
@@ -18,7 +21,7 @@ pub struct ApiArgs {
     /// set, the current directory is assumed to be a valid git repository and
     /// the remote url named `origin` will be taken.
     #[clap(long, short)]
-    pub repo: String,
+    pub repo: Option<String>,
 
     /// The GitHub personal access token. Takes precedence over environment
     /// variables.
@@ -36,9 +39,31 @@ pub enum ApiSubCommand {
 }
 
 impl ApiArgs {
+    fn repo_details_from_cli_or_current_dir(&self) -> Result<String> {
+        match &self.repo {
+            Some(repo) => Ok(repo.to_string()),
+            None => {
+                // Try to see if the current working directory is a valid git
+                // repository.
+                let current_dir = current_dir()
+                    .wrap_err_with(|| "Failed to determine current working directory")?;
+                let repo = Repository::open(&current_dir)
+                    .wrap_err_with(|| "Is the current working directory a valid git repository?")?;
+                let remote = repo
+                    .find_remote("origin")
+                    .wrap_err_with(|| "The git repository does not have a remote named origin")?;
+                remote
+                    .url()
+                    .ok_or_else(|| eyre!("The URL is not valid UTF-8"))
+                    .map(Into::into)
+            }
+        }
+    }
+
     pub async fn run(self, cli: Cli) -> Result<()> {
         let github = create_github_api_client(self.token.as_deref())?;
-        let repo = get_github_repo_and_owner(&self.repo)?;
+        let repo = self.repo_details_from_cli_or_current_dir()?;
+        let repo = get_github_repo_and_owner(&repo)?;
         let repo = github.repo(repo.0, repo.1);
 
         match self.cmd {

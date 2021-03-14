@@ -2,6 +2,7 @@ use crate::error::Error;
 use eyre::{Context, Result};
 use hubcaps::{Credentials, Github};
 use std::{borrow::Cow, env};
+use url::Url;
 
 const USER_AGENT: &str = "gh-labels-cli";
 
@@ -22,7 +23,7 @@ pub fn create_github_api_client(cli_token: Option<&str>) -> Result<Github> {
     }
 }
 
-pub type GitHubRepo<'a> = (&'a str, &'a str);
+pub type GitHubRepo<'a> = (Cow<'a, str>, Cow<'a, str>);
 
 /// Parses the repository CLI argument and constructs a GitHubRepo instance.
 ///
@@ -32,18 +33,43 @@ pub type GitHubRepo<'a> = (&'a str, &'a str);
 /// `Err(Error::InvalidRepoFormat)` otherwise.
 fn github_repo_from_cli_arg(arg: &str) -> std::result::Result<GitHubRepo<'_>, Error> {
     let number_of_slashes = arg.matches('/').count();
+    println!("{:?}", arg);
 
     match number_of_slashes {
         1 => {
             // Safety: match arm.
             let slash_index = arg.find('/').unwrap();
-            Ok((&arg[..slash_index], &arg[slash_index + 1..]))
+            Ok((arg[..slash_index].into(), arg[slash_index + 1..].into()))
         }
-        _ => Err(Error::InvalidRepoFormat),
+        _ => {
+            // Parse the parameter as a URL. If it's valid and its host is
+            // github.com, take the last two path segments and interpret them as
+            // owner and repo. If not, return an error.
+            let url = Url::parse(arg).map_err(|_| Error::InvalidRepoFormat)?;
+            if url.host_str() == Some("github.com") {
+                if let Some(mut segments) = url.path_segments() {
+                    let repo = segments.nth_back(0).map(|v| match v.strip_suffix(".git") {
+                        Some(without) => without,
+                        None => v,
+                    });
+                    let owner = segments.nth_back(0);
+
+                    if owner.is_some() && repo.is_some() {
+                        return Ok((
+                            owner.unwrap().to_string().into(),
+                            repo.unwrap().to_string().into(),
+                        ));
+                    }
+                }
+            }
+
+            Err(Error::InvalidRepoFormat)
+        }
     }
 }
 
 pub fn get_github_repo_and_owner(repo_arg: &str) -> Result<GitHubRepo<'_>> {
-    github_repo_from_cli_arg(repo_arg)
-        .wrap_err_with(|| "The repository field has to be provided as `owner/repo`!")
+    github_repo_from_cli_arg(repo_arg).wrap_err_with(|| {
+        "The repository has to be provided as `owner/repo` or as a https repository url!"
+    })
 }
