@@ -16,6 +16,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
+name = "ansi-colors-macro"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4c2afa84a2916e88ff06df6fd84e7c89e374a726e392f72dc5e32d6db3c3cf6"
+
+[[package]]
 name = "anyhow"
 version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -415,7 +421,7 @@ dependencies = [
  "hubcaps",
  "serde",
  "serde_json",
- "terminal-emoji",
+ "terminal-log-symbols",
  "terminal-spinners",
  "thiserror",
  "tokio",
@@ -1407,6 +1413,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "terminal-emoji"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c70b823a9b56470967c8ca5fe1a533a3008be9625e42eb799cd55bc56f60fed4"
+dependencies = [
+ "terminal-supports-emoji",
+]
+
+[[package]]
+name = "terminal-log-symbols"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6216f978d439a5ead3c04cf5d114c9bc31f1e8ba99f2549e2c2a5ae9fbee046b"
+dependencies = [
+ "ansi-colors-macro",
+ "terminal-emoji 0.4.0",
+]
+
+[[package]]
 name = "terminal-spinners"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1419,7 +1444,16 @@ dependencies = [
  "quote",
  "serde",
  "serde_json",
- "terminal-emoji",
+ "terminal-emoji 0.2.5",
+]
+
+[[package]]
+name = "terminal-supports-emoji"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "140d15b379fa8a64be0986c6db44f7d21d6b259b6bbaa027da606af7db000f97"
+dependencies = [
+ "atty",
 ]
 
 [[package]]

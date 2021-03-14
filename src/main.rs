@@ -8,16 +8,13 @@ use crate::{
 use clap::Clap;
 use eyre::{Result, WrapErr};
 use hubcaps::Error as GithubError;
-use terminal_emoji::Emoji;
+use terminal_log_symbols::colored::SUCCESS_SYMBOL;
 
 mod cli;
 mod error;
 mod extension;
 mod file;
 mod util;
-
-const ERROR_EMOJI: Emoji = Emoji::new("✖", "×");
-const SUCCESS_EMOJI: Emoji = Emoji::new("✔", "√");
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -51,7 +48,7 @@ async fn main() -> Result<()> {
                     return Err(Error::ApiError(e)).wrap_err_with(|| "Something went wrong during label creation. Please try again.");
                 },
                 _ => {
-                    println!("{} Created label {:?}", SUCCESS_EMOJI, label_name);
+                    println!("{} Created label {:?}", SUCCESS_SYMBOL, label_name);
                 }
             }
         }
