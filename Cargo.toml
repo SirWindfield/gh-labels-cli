@@ -6,7 +6,7 @@ repository = "https://github.com/SirWindfield/gh-labels-cli"
 edition = "2018"
 license = "Apache-2.0 OR MIT"
 name = "gh-labels-cli"
-version = "0.1.1"
+version = "0.1.2"
 
 [[bin]]
 name = "gh-labels"
