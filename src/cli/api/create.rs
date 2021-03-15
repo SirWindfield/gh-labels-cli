@@ -1,7 +1,7 @@
 use crate::{
     cli::Cli,
     error::Error,
-    extension::{LabelAlreadyExistsExt, RepoNotFoundExt},
+    extension::{LabelAlreadyExistsExt, RepoNotFoundExt, UnauthorizedExt},
     file::JsonLabel,
     Result,
 };
@@ -59,6 +59,10 @@ impl CreateArgs {
                 } else if e.is_repo_not_found_error() {
                     return Err(Error::RepoNotFound(self.repo.clone())).wrap_err_with(|| {
                         "Make sure that the repository does exist before using the CLI"
+                    });
+                } else if e.is_user_unauthorized() {
+                    return Err(Error::Unauthorized(self.repo.clone())).wrap_err_with(|| {
+                        "Make sure that your personal access token has push access to the repository"
                     });
                 }
 

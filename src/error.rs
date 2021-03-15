@@ -12,4 +12,6 @@ pub enum Error {
     NoTokenSpecified,
     #[error("Repository not found: {0:?}")]
     RepoNotFound(String),
+    #[error("No push access to repository: {0:?}")]
+    Unauthorized(String),
 }
