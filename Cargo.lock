@@ -204,17 +204,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
-name = "crossbeam-utils"
-version = "0.8.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7e9d99fa91428effe99c5c6d4634cdeba32b8cf784fc428a2a687f61a952c49"
-dependencies = [
- "autocfg",
- "cfg-if 1.0.0",
- "lazy_static",
-]
-
-[[package]]
 name = "crossterm"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1516,16 +1505,6 @@ dependencies = [
 
 [[package]]
 name = "terminal-emoji"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d155df52f61a5cece2c4d7cff3bdae2a031b2d158b39888217650c4ea89654c8"
-dependencies = [
- "atty",
- "lazy_static",
-]
-
-[[package]]
-name = "terminal-emoji"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c70b823a9b56470967c8ca5fe1a533a3008be9625e42eb799cd55bc56f60fed4"
@@ -1546,23 +1525,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6216f978d439a5ead3c04cf5d114c9bc31f1e8ba99f2549e2c2a5ae9fbee046b"
 dependencies = [
  "ansi-colors-macro",
- "terminal-emoji 0.4.0",
+ "terminal-emoji",
 ]
 
 [[package]]
-name = "terminal-spinners"
+name = "terminal-spinner-data"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bac327c1308b14cee051016680bc79f3128f6095555ca6a85b019f15b987273"
+checksum = "de8525024374331a1cd0e1d0b68bfa9051c267b0b98738c54a951ce50838096f"
 dependencies = [
  "anyhow",
- "crossbeam-utils",
- "crossterm",
  "heck",
  "quote",
  "serde",
  "serde_json",
- "terminal-emoji 0.2.5",
+]
+
+[[package]]
+name = "terminal-spinners"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40bb888fca9f9040a5f97ffbd3f7b5e8273c5bb8f2b4b604e070cee693a21863"
+dependencies = [
+ "crossterm",
+ "terminal-log-symbols",
+ "terminal-spinner-data",
 ]
 
 [[package]]
