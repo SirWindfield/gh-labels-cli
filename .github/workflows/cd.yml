@@ -41,7 +41,7 @@ jobs:
       run: |
         cargo build --release
         strip target/release/gh-labels
-        mkdir -p releases
+        mkdir -p release
         tar -C ./target/release/ -czvf ./release/gh-labels-mac.tar.gz ./gh-labels
         ls -lisah ./release/gh-labels-mac.tar.gz
     - name: Build Release Linux
