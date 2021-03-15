@@ -30,12 +30,6 @@ jobs:
     - name: Build
       run: cargo build
 
-    - name: Setup MUSL
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        rustup target add x86_64-unknown-linux-musl
-        sudo apt-get -qq install musl-tools
-
     - name: Build Release Mac
       if: matrix.os == 'macos-latest'
       run: |
@@ -48,9 +42,9 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         cargo build --release
-        strip target/x86_64-unknown-linux-musl/release/gh-labels
+        strip target/release/gh-labels
         mkdir -p release
-        tar -C ./target/x86_64-unknown-linux-musl/release/ -czvf ./release/gh-labels-linux-musl.tar.gz ./gh-labels
+        tar -C ./target/release/ -czvf ./release/gh-labels-linux.tar.gz ./gh-labels
     - name: Build Release Win
       if: matrix.os == 'windows-latest'
       run: |
@@ -80,11 +74,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Bump sirwindfield/homebrew-tab formula
+    - name: Bump sirwindfield/homebrew-tap formula
       uses: mislav/bump-homebrew-formula-action@v1
       if: "matrix.os == 'macos-latest' && !contains(github.ref, '-')" # skip prereleases
       env:
-        COMMITTER_TOKEN: ${{ secrets.BREW_TOKEN }}
+        COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
       with:
         homebrew-tap: sirwindfield/tab
         formula-name: gh-labels-cli
