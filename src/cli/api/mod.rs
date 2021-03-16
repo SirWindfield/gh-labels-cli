@@ -20,7 +20,7 @@ pub struct ApiArgs {
     pub cmd: ApiSubCommand,
 
     /// The number of concurrent connections to make to the GitHub API.
-    #[clap(long)]
+    #[clap(default_value("4"), long)]
     pub concurrent_connections: usize,
 
     /// The git repository to apply the changes to.
