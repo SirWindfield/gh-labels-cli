@@ -26,14 +26,6 @@ pub struct CreateArgs {
     #[clap(long, short)]
     pub name: String,
 
-    /// The git repository to apply the changes to.
-    ///
-    /// Can be either a git url or a string in the format `owner/repo`. If not
-    /// set, the current directory is assumed to be a valid git repository and
-    /// the remote url named `origin` will be taken.
-    #[clap(long, short)]
-    pub repo: String,
-
     /// The GitHub personal access token. Takes precedence over environment
     /// variables.
     #[clap(long, short)]
@@ -41,7 +33,7 @@ pub struct CreateArgs {
 }
 
 impl CreateArgs {
-    pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
+    pub async fn run(self, _cli: Cli, repo: Repository, repo_raw: impl ToString) -> Result<()> {
         let label = JsonLabel::from(
             self.color,
             self.description.unwrap_or_else(|| "".into()),
@@ -57,11 +49,11 @@ impl CreateArgs {
                         "GitHub doesn't support multiple labels with the same name"
                     });
                 } else if e.is_repo_not_found_error() {
-                    return Err(Error::RepoNotFound(self.repo.clone())).wrap_err_with(|| {
+                    return Err(Error::RepoNotFound(repo_raw.to_string())).wrap_err_with(|| {
                         "Make sure that the repository does exist before using the CLI"
                     });
                 } else if e.is_user_unauthorized() {
-                    return Err(Error::Unauthorized(self.repo.clone())).wrap_err_with(|| {
+                    return Err(Error::Unauthorized(repo_raw.to_string())).wrap_err_with(|| {
                         "Make sure that your personal access token has push access to the repository"
                     });
                 }
