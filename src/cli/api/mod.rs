@@ -68,12 +68,12 @@ impl ApiArgs {
 
     pub async fn run(self, cli: Cli) -> Result<()> {
         let github = create_github_api_client(self.token.as_deref())?;
-        let repo = self.repo_details_from_cli_or_current_dir()?;
-        let repo = get_github_repo_and_owner(&repo)?;
+        let repo_raw = self.repo_details_from_cli_or_current_dir()?;
+        let repo = get_github_repo_and_owner(&repo_raw)?;
         let repo = github.repo(repo.0, repo.1);
 
         match self.cmd {
-            ApiSubCommand::Create(args) => args.run(cli, repo).await?,
+            ApiSubCommand::Create(args) => args.run(cli, repo, repo_raw).await?,
             ApiSubCommand::Export(args) => args.run(cli, repo).await?,
             ApiSubCommand::Update(args) => args.run(cli, repo, self.concurrent_connections).await?,
         }
