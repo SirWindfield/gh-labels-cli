@@ -82,7 +82,7 @@ impl UpdateArgs {
         .buffer_unordered(concurrent_connections)
         .collect::<Vec<_>>();
         for (label_name, res) in fetches.await {
-            if let Err(_) = res {
+            if res.is_err() {
                 eprintln!("{} Failed to create label {:?}", ERROR_SYMBOL, label_name);
             }
         }
@@ -99,7 +99,7 @@ impl UpdateArgs {
         .buffer_unordered(concurrent_connections)
         .collect::<Vec<_>>();
         for (label_name, res) in fetches.await {
-            if let Err(_) = res {
+            if res.is_err() {
                 eprintln!("{} Failed to create label {:?}", ERROR_SYMBOL, label_name);
             }
         }
