@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# [HEAD](https://github.com/SirWindfield/gh-labels-cli/compare/v0.1.6...HEAD) (2021-03-16)
+# [HEAD](https://github.com/SirWindfield/gh-labels-cli/compare/v0.1.7...HEAD) (2021-03-16)
+
+## [v0.1.7](https://github.com/SirWindfield/gh-labels-cli/compare/v0.1.6...v0.1.7) (2021-03-16)
+
+### Bug Fixes
+
+- `create` subcommand takes `-r,--repo` argument (#25) ([eac0c17](https://github.com/SirWindfield/gh-labels-cli/commit/eac0c17a49e3888fe5004de9c491b058b658b35a)) , closes [#24](https://github.com/SirWindfield/gh-labels-cli/issues/24)
+
+### Features
+
+- add template support (#27) ([80c86d8](https://github.com/SirWindfield/gh-labels-cli/commit/80c86d8d6d5cd183ea0549a785d98deab8a52822))
 
 ## [v0.1.6](https://github.com/SirWindfield/gh-labels-cli/compare/v0.1.5...v0.1.6) (2021-03-16)
 
