@@ -8,6 +8,8 @@ pub enum Error {
     InvalidRepoFormat,
     #[error("Label already exists: {0:?}")]
     LabelAlreadyExists(String),
+    #[error("No template or color specified")]
+    NoTemplateOrColorSpecified,
     #[error("Failed to find GitHub API token")]
     NoTokenSpecified,
     #[error("Repository not found: {0:?}")]

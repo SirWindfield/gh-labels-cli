@@ -2,12 +2,13 @@ use crate::{
     cli::Cli,
     error::Error,
     extension::{LabelAlreadyExistsExt, RepoNotFoundExt, UnauthorizedExt},
-    file::JsonLabel,
+    file::{read_from_cli_arg_or_fallback_to_config_dir, JsonLabel},
     Result,
 };
 use clap::{AppSettings, Clap};
 use eyre::WrapErr;
 use hubcaps::repositories::Repository;
+use std::path::PathBuf;
 use terminal_log_symbols::colored::SUCCESS_SYMBOL;
 
 /// Create a new label.
@@ -16,11 +17,15 @@ use terminal_log_symbols::colored::SUCCESS_SYMBOL;
 pub struct CreateArgs {
     /// The color of the label in hex notation (without the hash).
     #[clap(long, short)]
-    pub color: String,
+    pub color: Option<String>,
 
     /// The description of the label.
     #[clap(long, short)]
     pub description: Option<String>,
+
+    /// The label definitions file to use for template resolution.
+    #[clap(long, short)]
+    pub file: Option<PathBuf>,
 
     /// The name of the label.
     #[clap(long, short)]
@@ -34,6 +39,10 @@ pub struct CreateArgs {
     #[clap(long, short)]
     pub repo: String,
 
+    /// The template to use for the new label.
+    #[clap(conflicts_with("color"), long)]
+    pub template: Option<String>,
+
     /// The GitHub personal access token. Takes precedence over environment
     /// variables.
     #[clap(long, short)]
@@ -42,8 +51,26 @@ pub struct CreateArgs {
 
 impl CreateArgs {
     pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
+        // If a template has been specified, take that color. If not, take the color
+        // passed by the CLI. Either way, one or the other has to be specified.
+        let label_definition_file =
+            read_from_cli_arg_or_fallback_to_config_dir(self.file.as_deref())?;
+        let color = self.template.as_deref().map(|template_name| {
+            label_definition_file
+                .templates
+                .iter()
+                .find(|&v| v.name == template_name)
+                .map(|v| v.color.as_ref())
+                .unwrap_or_else(|| self.color.as_deref().unwrap_or_default())
+        });
+
+        if color.is_none() {
+            return Err(Error::NoTemplateOrColorSpecified).wrap_err_with(|| "You either have to specify a template name or a color. Make sure that the template does indeed exist inside the label definitions file.");
+        }
+
         let label = JsonLabel::from(
-            self.color,
+            // Safety: above if statement.
+            self.color.unwrap(),
             self.description.unwrap_or_else(|| "".into()),
             self.name,
         );

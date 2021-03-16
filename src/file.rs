@@ -60,6 +60,16 @@ pub fn read_from_cli_arg_or_fallback_to_config_dir(
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct JsonTemplate {
+    pub color: String,
+    pub name: String,
+}
+
+pub type JsonTemplates = Vec<JsonTemplate>;
+
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct JsonFile {
     pub labels: JsonLabels,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub templates: JsonTemplates,
 }
