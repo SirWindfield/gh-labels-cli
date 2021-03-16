@@ -27,9 +27,6 @@ jobs:
         profile: minimal
         components: clippy
 
-    - name: Build
-      run: cargo build
-
     - name: Build Release Mac
       if: matrix.os == 'macos-latest'
       run: |
@@ -74,13 +71,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Bump sirwindfield/homebrew-tap formula
-      uses: mislav/bump-homebrew-formula-action@v1
-      if: "matrix.os == 'macos-latest' && !contains(github.ref, '-')" # skip prereleases
-      env:
-        COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      with:
-        homebrew-tap: sirwindfield/tab
-        formula-name: gh-labels-cli
-        commit-message: |
-          chore: update {{ formulaName }} to {{ version }}
+    # - name: Bump sirwindfield/homebrew-tap formula
+    #   uses: mislav/bump-homebrew-formula-action@v1
+    #   if: "matrix.os == 'macos-latest' && !contains(github.ref, '-')" # skip prereleases
+    #   env:
+    #     COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    #   with:
+    #     homebrew-tap: sirwindfield/tab
+    #     formula-name: gh-labels-cli
+    #     commit-message: |
+    #       chore: update {{ formulaName }} to {{ version }}
