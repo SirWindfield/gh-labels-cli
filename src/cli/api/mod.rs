@@ -9,6 +9,7 @@ use git2::Repository;
 use std::env::current_dir;
 
 mod create;
+mod export;
 mod update;
 
 /// Interact with the GitHub API.
@@ -39,6 +40,7 @@ pub struct ApiArgs {
 #[derive(Clap, Clone, Debug)]
 pub enum ApiSubCommand {
     Create(create::CreateArgs),
+    Export(export::ExportArgs),
     Update(update::UpdateArgs),
 }
 
@@ -72,6 +74,7 @@ impl ApiArgs {
 
         match self.cmd {
             ApiSubCommand::Create(args) => args.run(cli, repo).await?,
+            ApiSubCommand::Export(args) => args.run(cli, repo).await?,
             ApiSubCommand::Update(args) => args.run(cli, repo, self.concurrent_connections).await?,
         }
 
