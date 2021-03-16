@@ -1,12 +1,12 @@
 use eyre::{eyre, Context, Result};
-use hubcaps::labels::LabelOptions;
+use hubcaps::labels::{Label, LabelOptions};
 use serde::{Deserialize, Serialize};
 use std::{fs::File, path::Path};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct JsonLabel {
     pub color: String,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub description: String,
     pub name: String,
 }
@@ -24,6 +24,16 @@ impl JsonLabel {
 impl From<JsonLabel> for LabelOptions {
     fn from(lbl: JsonLabel) -> Self {
         LabelOptions::new(lbl.name, lbl.color, lbl.description)
+    }
+}
+
+impl From<Label> for JsonLabel {
+    fn from(lbl: Label) -> Self {
+        Self {
+            color: lbl.color,
+            name: lbl.name,
+            description: lbl.description.unwrap_or_default(),
+        }
     }
 }
 
