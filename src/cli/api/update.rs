@@ -1,10 +1,9 @@
 use crate::{cli::Cli, file::read_from_cli_arg_or_fallback_to_config_dir, Result};
 use clap::{AppSettings, Clap};
-use eyre::WrapErr;
+use futures::stream::{self, StreamExt};
 use hubcaps::repositories::Repository;
 use std::path::PathBuf;
-use terminal_log_symbols::colored::INFO_SYMBOL;
-use tokio::stream::StreamExt;
+use terminal_log_symbols::colored::{ERROR_SYMBOL, INFO_SYMBOL};
 
 /// Updates all labels from a label definition file.
 #[derive(Clap, Clone, Debug)]
@@ -20,7 +19,12 @@ pub struct UpdateArgs {
 }
 
 impl UpdateArgs {
-    pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
+    pub async fn run(
+        self,
+        _cli: Cli,
+        repo: Repository,
+        concurrent_connections: usize,
+    ) -> Result<()> {
         let label_definition_file = read_from_cli_arg_or_fallback_to_config_dir(self.file)?;
         let labels = label_definition_file.labels;
 
@@ -69,20 +73,35 @@ impl UpdateArgs {
         );
 
         // Only create labels that are different from the ones that are already present.
-        for label in labels_to_create {
-            let label_name = label.name.clone();
-            repo.labels()
-                .create(&label.into())
-                .await
-                .wrap_err_with(|| format!("Failed to create label: {:?}", &label_name))?;
+        let fetches = stream::iter(labels_to_create.into_iter().map(|label| async {
+            (
+                label.name.clone(),
+                repo.labels().create(&label.into()).await,
+            )
+        }))
+        .buffer_unordered(concurrent_connections)
+        .collect::<Vec<_>>();
+        for (label_name, res) in fetches.await {
+            if res.is_err() {
+                eprintln!("{} Failed to create label {:?}", ERROR_SYMBOL, label_name);
+            }
         }
 
-        for label in labels_to_update {
-            let label_name = label.name.clone();
-            repo.labels()
-                .update(&label_name, &label.into())
-                .await
-                .wrap_err_with(|| format!("Failed to create label: {:?}", &label_name))?;
+        // TODO: can this be rewritten to not clone the name twice for error reporting?
+        let fetches = stream::iter(labels_to_update.into_iter().map(|label| async {
+            (
+                label.name.clone(),
+                repo.labels()
+                    .update(&label.name.clone(), &label.into())
+                    .await,
+            )
+        }))
+        .buffer_unordered(concurrent_connections)
+        .collect::<Vec<_>>();
+        for (label_name, res) in fetches.await {
+            if res.is_err() {
+                eprintln!("{} Failed to create label {:?}", ERROR_SYMBOL, label_name);
+            }
         }
 
         Ok(())

@@ -412,6 +412,7 @@ dependencies = [
  "directories-next",
  "edit",
  "eyre",
+ "futures",
  "git2",
  "hubcaps",
  "serde",
