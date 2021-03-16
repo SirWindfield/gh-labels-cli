@@ -55,14 +55,17 @@ impl CreateArgs {
         // passed by the CLI. Either way, one or the other has to be specified.
         let label_definition_file =
             read_from_cli_arg_or_fallback_to_config_dir(self.file.as_deref())?;
-        let color = self.template.as_deref().map(|template_name| {
-            label_definition_file
-                .templates
-                .iter()
-                .find(|&v| v.name == template_name)
-                .map(|v| v.color.as_ref())
-                .unwrap_or_else(|| self.color.as_deref().unwrap_or_default())
-        });
+        let color: Option<&str> = self
+            .template
+            .as_deref()
+            .and_then(|template_name| {
+                label_definition_file
+                    .templates
+                    .iter()
+                    .find(|&v| v.name == template_name)
+                    .map(|v| v.color.as_ref())
+            })
+            .or_else(|| self.color.as_deref());
 
         if color.is_none() {
             return Err(Error::NoTemplateOrColorSpecified).wrap_err_with(|| "You either have to specify a template name or a color. Make sure that the template does indeed exist inside the label definitions file.");
@@ -70,7 +73,7 @@ impl CreateArgs {
 
         let label = JsonLabel::from(
             // Safety: above if statement.
-            self.color.unwrap(),
+            color.unwrap().to_string(),
             self.description.unwrap_or_else(|| "".into()),
             self.name,
         );
