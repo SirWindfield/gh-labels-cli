@@ -42,7 +42,7 @@ pub struct CreateArgs {
 }
 
 impl CreateArgs {
-    pub async fn run(self, _cli: Cli, repo: Repository) -> Result<()> {
+    pub async fn run(self, _cli: Cli, repo: Repository, repo_raw: impl ToString) -> Result<()> {
         // If a template has been specified, take that color. If not, take the color
         // passed by the CLI. Either way, one or the other has to be specified.
         let label_definition_file =
