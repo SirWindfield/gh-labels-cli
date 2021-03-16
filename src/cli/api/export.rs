@@ -31,6 +31,7 @@ impl ExportArgs {
 
         let json_file = JsonFile {
             labels: json_labels,
+            ..Default::default()
         };
 
         fs::write(self.file, serde_json::to_string(&json_file)?)?;
