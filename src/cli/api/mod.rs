@@ -15,6 +15,13 @@ mod update;
 #[derive(Clap, Clone, Debug)]
 #[clap(author, setting(AppSettings::ColoredHelp), version)]
 pub struct ApiArgs {
+    #[clap(subcommand)]
+    pub cmd: ApiSubCommand,
+
+    /// The number of concurrent connections to make to the GitHub API.
+    #[clap(long)]
+    pub concurrent_connections: usize,
+
     /// The git repository to apply the changes to.
     ///
     /// Can be either a git url or a string in the format `owner/repo`. If not
@@ -27,9 +34,6 @@ pub struct ApiArgs {
     /// variables.
     #[clap(long, short)]
     pub token: Option<String>,
-
-    #[clap(subcommand)]
-    pub cmd: ApiSubCommand,
 }
 
 #[derive(Clap, Clone, Debug)]
@@ -68,7 +72,7 @@ impl ApiArgs {
 
         match self.cmd {
             ApiSubCommand::Create(args) => args.run(cli, repo).await?,
-            ApiSubCommand::Update(args) => args.run(cli, repo).await?,
+            ApiSubCommand::Update(args) => args.run(cli, repo, self.concurrent_connections).await?,
         }
 
         Ok(())
