@@ -53,11 +53,10 @@ fn github_repo_from_cli_arg(arg: &str) -> std::result::Result<GitHubRepo<'_>, Er
                     });
                     let owner = segments.nth_back(0);
 
-                    if owner.is_some() && repo.is_some() {
-                        return Ok((
-                            owner.unwrap().to_string().into(),
-                            repo.unwrap().to_string().into(),
-                        ));
+                    if let Some(owner) = owner {
+                        if let Some(repo) = repo {
+                            return Ok((owner.to_string().into(), repo.to_string().into()));
+                        }
                     }
                 }
             }
