@@ -70,6 +70,6 @@ pub type JsonTemplates = Vec<JsonTemplate>;
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct JsonFile {
     pub labels: JsonLabels,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub templates: JsonTemplates,
 }
