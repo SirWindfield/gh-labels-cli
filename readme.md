@@ -16,13 +16,19 @@ $ gh alias set -s new 'gh repo create $1; cd $1; gh labels update --purge'
 
 ## Installation
 
-As for now, `gh-labels-cli` can only be installed through `cargo`:
+`gh-labels-cli` can be installed via homebrew:
+
+```console
+$ brew install sirwindfield/tap/gh-labels-cli
+```
+
+You can also build it from source using `cargo`:
 
 ```console
 $ cargo install gh-labels-cli --locked
 ```
 
-A homebrew tab and AUR packages are in the works :)
+An AUR package is in the works :)
 
 ## Usage
 
