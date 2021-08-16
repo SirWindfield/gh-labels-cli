@@ -13,7 +13,7 @@ name = "gh-labels"
 path = "src/main.rs"
 
 [dependencies]
-clap = "3.0.0-alpha.2"
+clap = "3.0.0-beta.4"
 color-eyre = "0.5.11"
 directories-next = "2.0.0"
 edit = "0.1.3"
